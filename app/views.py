@@ -74,7 +74,37 @@ def profile_info(request):
     d={'USD':USD,'PFD':PFD}
     return render(request,'profile_info.html',d)
 
+@login_required
+def change_password(request):
+    if request.method=='POST':
+        username=request.session.get('username')
+        npw=request.POST['npw']
+        USO=User.objects.get(username=username)
+        USO.set_password(npw)
+        USO.save()
+        return HttpResponseRedirect(reverse('user_login'))
+    return render(request,'change_password.html')
 
+
+def reset_password(request):
+    if request.method=='POST':
+        username=request.POST['username']    
+        npw=request.POST['npw']
+        LUSO=User.objects.filter(username=username)
+        if LUSO:
+            LUSO[0].set_password(npw)
+            LUSO[0].save()
+
+
+            send_mail('User registration',
+            'Regiistration is success full',
+            'palepumallika@gmail.com',
+            [USO.email],fail_silently=False)
+            
+            return HttpResponseRedirect(reverse('user_login'))
+        else:
+            return HttpResponse('Username is not available in my data abse')
+    return render(request,'reset_password.html')
 
 
 
